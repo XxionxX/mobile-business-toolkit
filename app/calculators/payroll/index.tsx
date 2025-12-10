@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { Link } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Clipboard from "expo-clipboard";
 import {
@@ -66,7 +67,6 @@ export default function PayrollCalculatorScreen() {
       hourlyCost,
     });
 
-    // Warn for division issues
     const w = safeDivisionWarning(hours, hourlyCost);
     if (w) setWarning(w);
 
@@ -142,15 +142,24 @@ export default function PayrollCalculatorScreen() {
       <TouchableOpacity style={styles.copyButton} onPress={copyResults}>
         <Text style={styles.copyButtonText}>COPY RESULTS</Text>
       </TouchableOpacity>
+
+      {/* MAIN MENU BUTTON */}
+      <View style={{ marginTop: 30, alignItems: "center" }}>
+        <Link href="/" asChild>
+          <TouchableOpacity style={styles.menuButton}>
+            <Text style={styles.menuButtonText}>Main Menu</Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
+    padding: 28,
     paddingBottom: 60,
-    backgroundColor: "#fff",
+    backgroundColor: "#fafafa", // softer feeling screen
   },
   pageTitle: {
     fontSize: 26,
@@ -159,17 +168,18 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   label: {
-    marginBottom: 4,
-    marginTop: 12,
+    marginBottom: 6,
+    marginTop: 14,
     fontSize: 16,
     fontWeight: "600",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#aaa",
-    borderRadius: 6,
-    padding: 12,
+    borderColor: "#cfcfcf", // lighter, modern
+    borderRadius: 10, // softer rounded corners
+    padding: 14,
     fontSize: 18,
+    backgroundColor: "#fff",
   },
   warning: {
     color: "#c00",
@@ -179,19 +189,19 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 24,
+    marginTop: 26,
   },
   calcButton: {
     backgroundColor: "#1a73e8",
-    padding: 14,
-    borderRadius: 6,
+    padding: 16,
+    borderRadius: 8,
     flex: 1,
     marginRight: 10,
   },
   clearButton: {
     backgroundColor: "#c62828",
-    padding: 14,
-    borderRadius: 6,
+    padding: 16,
+    borderRadius: 8,
     flex: 1,
     marginLeft: 10,
   },
@@ -201,12 +211,23 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   copyButton: {
-    marginTop: 24,
+    marginTop: 28,
     alignSelf: "center",
   },
   copyButtonText: {
     fontSize: 16,
     color: "#1a73e8",
+    fontWeight: "600",
+  },
+  menuButton: {
+    backgroundColor: "#555",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  menuButtonText: {
+    color: "#fff",
+    fontSize: 16,
     fontWeight: "600",
   },
 });
