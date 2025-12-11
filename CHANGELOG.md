@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Private GitHub repository setup
 - Apache 2.0 license
 - Project README
+- Improved payroll UI styles (modernized inputs, padding, rounding)
+- Added main menu button to payroll screen
 
 [0.1.0]: https://github.com/XxionxX/mobile-business-toolkit/releases/tag/v0.1.0
 
