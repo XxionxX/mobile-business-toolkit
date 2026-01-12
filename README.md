@@ -51,7 +51,7 @@ The framework is designed to be:
 - **modular** — each calculator lives in its own folder
 - **extensible** — adding a new business module requires minimal boilerplate
 - **UI + logic separated** — business math lives outside screen components
-- **offline-capable** — persistence through AsyncStorage
+- **offline-capable** — persistence via AsyncStorage (non-sensitive data only) and SecureStore for secrets/tokens
 - **reusable** — shared UI patterns, formatting utilities, and validation
 
 ### Directory Structure (simplified)
@@ -152,6 +152,19 @@ Planned improvements:
     npx expo start
 
 Preview using the **Expo Go** mobile app.
+
+---
+
+## 🔐 Security Notes (important)
+
+- **Do not store tokens or passwords in AsyncStorage.**
+- Store sensitive items (auth tokens, secrets) using **expo-secure-store**.
+- Offline/sync designs are documented in `/docs` and should be implemented with encryption and least-privilege access controls.
+
+See:
+- `/docs/SECURITY.md`
+- `/docs/security-checklist.md`
+- `/docs/data-classification.md`
 
 ---
 
