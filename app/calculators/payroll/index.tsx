@@ -1,13 +1,14 @@
 // app/calculators/payroll/index.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
+  ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
+  Text,
+  TextInput,
   TouchableOpacity,
-  Alert,
+  View,
 } from "react-native";
 import { Link } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,42 +21,69 @@ import {
   safeDivisionWarning,
 } from "./logic";
 
+type PersistedPayroll = {
+  sales?: string;
+  percent?: string;
+  hourlyCost?: string;
+  payrollDollars?: string;
+  teamHours?: string;
+};
+
+const STORAGE_KEY = "payroll-data";
+
 export default function PayrollCalculatorScreen() {
+  const [isLoading, setIsLoading] = useState(true);
+
   const [sales, setSales] = useState("");
   const [percent, setPercent] = useState("");
   const [hourlyCost, setHourlyCost] = useState("");
+
   const [payrollDollars, setPayrollDollars] = useState("");
   const [teamHours, setTeamHours] = useState("");
-  const [warning, setWarning] = useState("");
+
+  const [warning, setWarning] = useState<string>("");
 
   // --- Load saved values ---
   useEffect(() => {
     (async () => {
-      const saved = await AsyncStorage.getItem("payroll-data");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setSales(parsed.sales || "");
-        setPercent(parsed.percent || "");
-        setHourlyCost(parsed.hourlyCost || "");
-        setPayrollDollars(parsed.payrollDollars || "");
-        setTeamHours(parsed.teamHours || "");
+      try {
+        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed: PersistedPayroll = JSON.parse(saved);
+          setSales(parsed.sales || "");
+          setPercent(parsed.percent || "");
+          setHourlyCost(parsed.hourlyCost || "");
+          setPayrollDollars(parsed.payrollDollars || "");
+          setTeamHours(parsed.teamHours || "");
+        }
+      } catch {
+        // If parsing/storage fails, we just start fresh.
+      } finally {
+        setIsLoading(false);
       }
     })();
   }, []);
 
-  // --- Save values when any change is made ---
-  async function persist() {
-    await AsyncStorage.setItem(
-      "payroll-data",
-      JSON.stringify({
-        sales,
-        percent,
-        hourlyCost,
-        payrollDollars,
-        teamHours,
-      })
-    );
+  // --- Persist values (non-sensitive only) ---
+  async function persist(next?: Partial<PersistedPayroll>) {
+    const payload: PersistedPayroll = {
+      sales,
+      percent,
+      hourlyCost,
+      payrollDollars,
+      teamHours,
+      ...next,
+    };
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch {
+      // Ignore write failures; user can still use calculator.
+    }
   }
+
+  const isMissingRequired = useMemo(() => {
+    return !sales.trim() || !percent.trim() || !hourlyCost.trim();
+  }, [sales, percent, hourlyCost]);
 
   // --- Calculate ---
   function handleCalculate() {
@@ -70,9 +98,13 @@ export default function PayrollCalculatorScreen() {
     const w = safeDivisionWarning(hours, hourlyCost);
     if (w) setWarning(w);
 
-    setPayrollDollars(formatCurrency(payroll));
-    setTeamHours(formatHours(hours));
-    persist();
+    const payrollFmt = formatCurrency(payroll);
+    const hoursFmt = formatHours(hours);
+
+    setPayrollDollars(payrollFmt);
+    setTeamHours(hoursFmt);
+
+    persist({ payrollDollars: payrollFmt, teamHours: hoursFmt });
   }
 
   // --- Clear fields ---
@@ -83,151 +115,334 @@ export default function PayrollCalculatorScreen() {
     setPayrollDollars("");
     setTeamHours("");
     setWarning("");
-    persist();
+    persist({
+      sales: "",
+      percent: "",
+      hourlyCost: "",
+      payrollDollars: "",
+      teamHours: "",
+    });
   }
 
   // --- Copy result ---
   async function copyResults() {
     const text = `Payroll: ${payrollDollars}\nHours: ${teamHours}`;
     await Clipboard.setStringAsync(text);
-    Alert.alert("Copied!", "Results copied to clipboard.");
+    Alert.alert("Copied", "Results copied to clipboard.");
+  }
+
+  // --- Standardized field renderer ---
+  function Field({
+    label,
+    value,
+    onChangeText,
+    placeholder,
+    required,
+    editable = true,
+  }: {
+    label: string;
+    value: string;
+    onChangeText?: (t: string) => void;
+    placeholder?: string;
+    required?: boolean;
+    editable?: boolean;
+  }) {
+    return (
+      <View style={styles.field}>
+        <Text style={styles.label}>
+          {label} {required ? <Text style={styles.required}>*</Text> : null}
+        </Text>
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor="#8A8A8A"
+          editable={editable}
+          keyboardType="numeric"
+          style={[styles.input, !editable && styles.inputReadOnly]}
+        />
+      </View>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingWrap}>
+        <ActivityIndicator size="large" />
+        <Text style={styles.loadingText}>Loading saved values…</Text>
+      </View>
+    );
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.pageTitle}>Payroll Calculator</Text>
 
-      <Text style={styles.label}>Estimated or Total Sales *</Text>
-      <TextInput
-        value={sales}
-        onChangeText={(v) => setSales(formatCurrency(v))}
-        keyboardType="numeric"
-        style={styles.input}
-      />
+      <View style={styles.card}>
+        <Field
+          label="Estimated or Total Sales"
+          required
+          value={sales}
+          onChangeText={(v) => {
+            const next = formatCurrency(v);
+            setSales(next);
+            persist({ sales: next });
+          }}
+          placeholder="$0.00"
+        />
 
-      <Text style={styles.label}>Payroll Percent Goal *</Text>
-      <TextInput
-        value={percent}
-        onChangeText={(v) => setPercent(formatPercentage(v))}
-        keyboardType="numeric"
-        style={styles.input}
-      />
+        <Field
+          label="Payroll Percent Goal"
+          required
+          value={percent}
+          onChangeText={(v) => {
+            const next = formatPercentage(v);
+            setPercent(next);
+            persist({ percent: next });
+          }}
+          placeholder="10%"
+        />
 
-      <Text style={styles.label}>Estimated or Total Hourly Cost *</Text>
-      <TextInput
-        value={hourlyCost}
-        onChangeText={(v) => setHourlyCost(formatCurrency(v))}
-        keyboardType="numeric"
-        style={styles.input}
-      />
+        <Field
+          label="Estimated or Total Hourly Cost"
+          required
+          value={hourlyCost}
+          onChangeText={(v) => {
+            const next = formatCurrency(v);
+            setHourlyCost(next);
+            persist({ hourlyCost: next });
+          }}
+          placeholder="$0.00"
+        />
 
-      <Text style={styles.label}>Estimated or Total Payroll Dollars</Text>
-      <TextInput value={payrollDollars} editable={false} style={styles.input} />
+        <View style={styles.divider} />
 
-      <Text style={styles.label}>Estimated or Total Team Hours</Text>
-      <TextInput value={teamHours} editable={false} style={styles.input} />
+        <Field
+          label="Estimated or Total Payroll Dollars"
+          value={payrollDollars}
+          editable={false}
+          placeholder="$0.00"
+        />
 
-      {warning !== "" && <Text style={styles.warning}>{warning}</Text>}
+        <Field
+          label="Estimated or Total Team Hours"
+          value={teamHours}
+          editable={false}
+          placeholder="0"
+        />
 
-      <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.calcButton} onPress={handleCalculate}>
-          <Text style={styles.buttonText}>CALCULATE</Text>
-        </TouchableOpacity>
+        {warning ? (
+          <View style={styles.notice}>
+            <Text style={styles.noticeTitle}>Heads up</Text>
+            <Text style={styles.noticeText}>{warning}</Text>
+          </View>
+        ) : null}
 
-        <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
-          <Text style={styles.buttonText}>CLEAR</Text>
-        </TouchableOpacity>
-      </View>
+        {isMissingRequired ? (
+          <View style={styles.emptyHint}>
+            <Text style={styles.emptyHintText}>
+              Enter Sales, Percent, and Hourly Cost to calculate.
+            </Text>
+          </View>
+        ) : null}
 
-      <TouchableOpacity style={styles.copyButton} onPress={copyResults}>
-        <Text style={styles.copyButtonText}>COPY RESULTS</Text>
-      </TouchableOpacity>
-
-      {/* MAIN MENU BUTTON */}
-      <View style={{ marginTop: 30, alignItems: "center" }}>
-        <Link href="/" asChild>
-          <TouchableOpacity style={styles.menuButton}>
-            <Text style={styles.menuButtonText}>Main Menu</Text>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[styles.primaryButton, isMissingRequired && styles.buttonDisabled]}
+            onPress={handleCalculate}
+            disabled={isMissingRequired}
+          >
+            <Text style={styles.primaryButtonText}>Calculate</Text>
           </TouchableOpacity>
-        </Link>
+
+          <TouchableOpacity style={styles.dangerButton} onPress={clearAll}>
+            <Text style={styles.dangerButtonText}>Clear</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.secondaryButton, (payrollDollars || teamHours) ? null : styles.buttonDisabled]}
+          onPress={copyResults}
+          disabled={!payrollDollars && !teamHours}
+        >
+          <Text style={styles.secondaryButtonText}>Copy Results</Text>
+        </TouchableOpacity>
+
+        {/* MAIN MENU BUTTON */}
+        <View style={styles.menuWrap}>
+          <Link href="/" asChild>
+            <TouchableOpacity style={styles.menuButton}>
+              <Text style={styles.menuButtonText}>Main Menu</Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  // Layout
   container: {
-    padding: 28,
-    paddingBottom: 60,
-    backgroundColor: "#fafafa", // softer feeling screen
+    padding: 20,
+    paddingBottom: 44,
+    backgroundColor: "#F6F7F9",
   },
   pageTitle: {
     fontSize: 26,
     fontWeight: "800",
-    marginBottom: 18,
+    marginBottom: 14,
     textAlign: "left",
+    color: "#111",
+  },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#E6E7EA",
+  },
+
+  // Loading state
+  loadingWrap: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+    backgroundColor: "#F6F7F9",
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#333",
+  },
+
+  // Fields
+  field: {
+    marginBottom: 14,
   },
   label: {
     marginBottom: 6,
-    marginTop: 14,
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#222",
+  },
+  required: {
+    color: "#C62828",
+    fontWeight: "800",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#cfcfcf", // lighter, modern
-    borderRadius: 10, // softer rounded corners
-    padding: 14,
+    borderColor: "#CFCFCF",
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     fontSize: 18,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFF",
+    color: "#111",
   },
-  warning: {
-    color: "#c00",
-    marginTop: 10,
-    fontSize: 16,
+  inputReadOnly: {
+    backgroundColor: "#F2F3F6",
+    color: "#333",
   },
+
+  divider: {
+    height: 1,
+    backgroundColor: "#ECEEF2",
+    marginVertical: 10,
+  },
+
+  // Notices
+  notice: {
+    marginTop: 4,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: "#FFF6E5",
+    borderWidth: 1,
+    borderColor: "#FFE0A6",
+  },
+  noticeTitle: {
+    fontWeight: "800",
+    color: "#7A4B00",
+    marginBottom: 4,
+  },
+  noticeText: {
+    color: "#5A3A00",
+    fontSize: 14,
+    lineHeight: 18,
+  },
+
+  emptyHint: {
+    marginTop: 6,
+    paddingVertical: 8,
+  },
+  emptyHintText: {
+    color: "#666",
+    fontSize: 13,
+  },
+
+  // Buttons
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 26,
+    gap: 12,
+    marginTop: 14,
   },
-  calcButton: {
-    backgroundColor: "#1a73e8",
-    padding: 16,
-    borderRadius: 8,
+  primaryButton: {
     flex: 1,
-    marginRight: 10,
+    backgroundColor: "#1A73E8",
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
   },
-  clearButton: {
-    backgroundColor: "#c62828",
-    padding: 16,
-    borderRadius: 8,
-    flex: 1,
-    marginLeft: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "700",
-  },
-  copyButton: {
-    marginTop: 28,
-    alignSelf: "center",
-  },
-  copyButtonText: {
+  primaryButtonText: {
+    color: "#FFF",
+    fontWeight: "800",
     fontSize: 16,
-    color: "#1a73e8",
-    fontWeight: "600",
+  },
+  dangerButton: {
+    flex: 1,
+    backgroundColor: "#C62828",
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  dangerButtonText: {
+    color: "#FFF",
+    fontWeight: "800",
+    fontSize: 16,
+  },
+  secondaryButton: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: "#1A73E8",
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+  },
+  secondaryButtonText: {
+    color: "#1A73E8",
+    fontWeight: "800",
+    fontSize: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.45,
+  },
+
+  // Menu
+  menuWrap: {
+    marginTop: 16,
+    alignItems: "center",
   },
   menuButton: {
-    backgroundColor: "#555",
+    backgroundColor: "#4B5563",
     paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    paddingHorizontal: 18,
+    borderRadius: 12,
   },
   menuButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    color: "#FFF",
+    fontSize: 15,
+    fontWeight: "800",
   },
 });
