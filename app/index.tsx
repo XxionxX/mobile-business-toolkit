@@ -1,18 +1,27 @@
 // app/index.tsx
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { Link } from "expo-router";
+import { Button } from "../components/ui/Button";
 
 export default function AppHome() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mobile Business Toolkit</Text>
 
-      <View style={styles.buttonContainer}>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Calculators</Text>
+        <Text style={styles.cardSubtitle}>
+          Quick tools for payroll, staffing, and operations.
+        </Text>
+
         <Link href="/calculators/payroll" asChild>
-          <TouchableOpacity style={styles.navButton}>
-            <Text style={styles.navButtonText}>Payroll Calculator</Text>
-          </TouchableOpacity>
+          <Button title="Payroll Calculator" variant="primary" />
         </Link>
+
+        <Text style={styles.hint}>
+          More modules will appear here as you add them.
+        </Text>
       </View>
     </View>
   );
@@ -21,27 +30,41 @@ export default function AppHome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    backgroundColor: "#fff",
-    justifyContent: "center",
+    padding: 20,
+    paddingBottom: 44,
+    backgroundColor: "#F6F7F9",
+    justifyContent: "flex-start",
   },
   title: {
-    fontSize: 28,
-    fontWeight: "700",
-    textAlign: "left",
-    marginBottom: 40,
+    fontSize: 26,
+    fontWeight: "800",
+    marginTop: 18,          // was 8 → adds ~5px
+    marginBottom: 16,
+    color: "#111",
+    textAlign: "center",    // ← center title
   },
-  buttonContainer: {
-    alignItems: "flex-start",
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#E6E7EA",
   },
-  navButton: {
-    backgroundColor: "#1a73e8",
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    borderRadius: 6,
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#111",
+    marginBottom: 4,
   },
-  navButtonText: {
-    color: "#fff",
-    fontSize: 18,
+  cardSubtitle: {
+    fontSize: 13,
+    color: "#555",
+    marginBottom: 12,
+    lineHeight: 18,
+  },
+  hint: {
+    marginTop: 12,
+    fontSize: 12,
+    color: "#666",
   },
 });
