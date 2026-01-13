@@ -1,89 +1,68 @@
-// app/calculators/payroll/index.tsx
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Link } from "expo-router";
+import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
+import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Clipboard from "expo-clipboard";
+
+import AppButton from "../../../components/ui/AppButton";
+import AppField from "../../../components/ui/AppField";
+
 import {
   calculatePayroll,
   formatCurrency,
   formatPercentage,
   formatHours,
   safeDivisionWarning,
-} from "./logic";
-
-type PersistedPayroll = {
-  sales?: string;
-  percent?: string;
-  hourlyCost?: string;
-  payrollDollars?: string;
-  teamHours?: string;
-};
-
-const STORAGE_KEY = "payroll-data";
+} from "../../../lib/calculators/payroll/logic";
 
 export default function PayrollCalculatorScreen() {
-  const [isLoading, setIsLoading] = useState(true);
-
   const [sales, setSales] = useState("");
   const [percent, setPercent] = useState("");
   const [hourlyCost, setHourlyCost] = useState("");
-
   const [payrollDollars, setPayrollDollars] = useState("");
   const [teamHours, setTeamHours] = useState("");
-
-  const [warning, setWarning] = useState<string>("");
+  const [warning, setWarning] = useState("");
+  const [isHydrating, setIsHydrating] = useState(true);
 
   // --- Load saved values ---
   useEffect(() => {
     (async () => {
       try {
-        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        const saved = await AsyncStorage.getItem("payroll-data");
         if (saved) {
-          const parsed: PersistedPayroll = JSON.parse(saved);
+          const parsed = JSON.parse(saved);
           setSales(parsed.sales || "");
           setPercent(parsed.percent || "");
           setHourlyCost(parsed.hourlyCost || "");
           setPayrollDollars(parsed.payrollDollars || "");
           setTeamHours(parsed.teamHours || "");
         }
-      } catch {
-        // If parsing/storage fails, we just start fresh.
       } finally {
-        setIsLoading(false);
+        setIsHydrating(false);
       }
     })();
   }, []);
 
-  // --- Persist values (non-sensitive only) ---
-  async function persist(next?: Partial<PersistedPayroll>) {
-    const payload: PersistedPayroll = {
-      sales,
-      percent,
-      hourlyCost,
-      payrollDollars,
-      teamHours,
-      ...next,
-    };
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch {
-      // Ignore write failures; user can still use calculator.
-    }
+  // --- Save values when any change is made ---
+  async function persist(next?: Partial<{
+    sales: string;
+    percent: string;
+    hourlyCost: string;
+    payrollDollars: string;
+    teamHours: string;
+  }>) {
+    await AsyncStorage.setItem(
+      "payroll-data",
+      JSON.stringify({
+        sales,
+        percent,
+        hourlyCost,
+        payrollDollars,
+        teamHours,
+        ...next,
+      })
+    );
   }
-
-  const isMissingRequired = useMemo(() => {
-    return !sales.trim() || !percent.trim() || !hourlyCost.trim();
-  }, [sales, percent, hourlyCost]);
 
   // --- Calculate ---
   function handleCalculate() {
@@ -98,13 +77,12 @@ export default function PayrollCalculatorScreen() {
     const w = safeDivisionWarning(hours, hourlyCost);
     if (w) setWarning(w);
 
-    const payrollFmt = formatCurrency(payroll);
-    const hoursFmt = formatHours(hours);
+    const nextPayroll = formatCurrency(payroll);
+    const nextHours = formatHours(hours);
 
-    setPayrollDollars(payrollFmt);
-    setTeamHours(hoursFmt);
-
-    persist({ payrollDollars: payrollFmt, teamHours: hoursFmt });
+    setPayrollDollars(nextPayroll);
+    setTeamHours(nextHours);
+    persist({ payrollDollars: nextPayroll, teamHours: nextHours });
   }
 
   // --- Clear fields ---
@@ -128,321 +106,138 @@ export default function PayrollCalculatorScreen() {
   async function copyResults() {
     const text = `Payroll: ${payrollDollars}\nHours: ${teamHours}`;
     await Clipboard.setStringAsync(text);
-    Alert.alert("Copied", "Results copied to clipboard.");
+    Alert.alert("Copied!", "Results copied to clipboard.");
   }
 
-  // --- Standardized field renderer ---
-  function Field({
-    label,
-    value,
-    onChangeText,
-    placeholder,
-    required,
-    editable = true,
-  }: {
-    label: string;
-    value: string;
-    onChangeText?: (t: string) => void;
-    placeholder?: string;
-    required?: boolean;
-    editable?: boolean;
-  }) {
-    return (
-      <View style={styles.field}>
-        <Text style={styles.label}>
-          {label} {required ? <Text style={styles.required}>*</Text> : null}
-        </Text>
-        <TextInput
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor="#8A8A8A"
-          editable={editable}
-          keyboardType="numeric"
-          style={[styles.input, !editable && styles.inputReadOnly]}
-        />
-      </View>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <View style={styles.loadingWrap}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Loading saved values…</Text>
-      </View>
-    );
-  }
+  const hasResults = useMemo(() => payrollDollars !== "" || teamHours !== "", [payrollDollars, teamHours]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.pageTitle}>Payroll Calculator</Text>
+{isHydrating ? (
+  <View style={styles.stateBox}>
+    <Text style={styles.stateText}>Loading saved values…</Text>
+  </View>
+) : null}
 
-      <View style={styles.card}>
-        <Field
-          label="Estimated or Total Sales"
-          required
-          value={sales}
-          onChangeText={(v) => {
-            const next = formatCurrency(v);
-            setSales(next);
-            persist({ sales: next });
-          }}
-          placeholder="$0.00"
-        />
+<AppField
+  label="Estimated or Total Sales"
+  required
+  value={sales}
+  onChangeText={(v) => setSales(formatCurrency(v))}
+  keyboardType="numeric"
+  placeholder="0"
+/>
 
-        <Field
-          label="Payroll Percent Goal"
-          required
-          value={percent}
-          onChangeText={(v) => {
-            const next = formatPercentage(v);
-            setPercent(next);
-            persist({ percent: next });
-          }}
-          placeholder="10%"
-        />
+<AppField
+  label="Payroll Percent Goal"
+  required
+  value={percent}
+  onChangeText={(v) => setPercent(formatPercentage(v))}
+  keyboardType="numeric"
+  placeholder="0"
+/>
 
-        <Field
-          label="Estimated or Total Hourly Cost"
-          required
-          value={hourlyCost}
-          onChangeText={(v) => {
-            const next = formatCurrency(v);
-            setHourlyCost(next);
-            persist({ hourlyCost: next });
-          }}
-          placeholder="$0.00"
-        />
+<AppField
+  label="Estimated or Total Hourly Cost"
+  required
+  value={hourlyCost}
+  onChangeText={(v) => setHourlyCost(formatCurrency(v))}
+  keyboardType="numeric"
+  placeholder="0"
+/>
 
-        <View style={styles.divider} />
+<AppField
+  label="Estimated or Total Payroll Dollars"
+  value={payrollDollars}
+  readOnly
+  placeholder="—"
+/>
 
-        <Field
-          label="Estimated or Total Payroll Dollars"
-          value={payrollDollars}
-          editable={false}
-          placeholder="$0.00"
-        />
+<AppField
+  label="Estimated or Total Team Hours"
+  value={teamHours}
+  readOnly
+  placeholder="—"
+/>
 
-        <Field
-          label="Estimated or Total Team Hours"
-          value={teamHours}
-          editable={false}
-          placeholder="0"
-        />
+{warning !== "" ? <Text style={styles.warning}>{warning}</Text> : null}
 
-        {warning ? (
-          <View style={styles.notice}>
-            <Text style={styles.noticeTitle}>Heads up</Text>
-            <Text style={styles.noticeText}>{warning}</Text>
-          </View>
-        ) : null}
+<View style={styles.buttonRow}>
+  <View style={styles.buttonCol}>
+    <AppButton title="CALCULATE" onPress={handleCalculate} />
+  </View>
+  <View style={styles.buttonCol}>
+    <AppButton title="CLEAR" variant="danger" onPress={clearAll} />
+  </View>
+</View>
 
-        {isMissingRequired ? (
-          <View style={styles.emptyHint}>
-            <Text style={styles.emptyHintText}>
-              Enter Sales, Percent, and Hourly Cost to calculate.
-            </Text>
-          </View>
-        ) : null}
+<View style={styles.actions}>
+  <AppButton
+    title="COPY RESULTS"
+    variant="ghost"
+    onPress={copyResults}
+    disabled={!hasResults}
+  />
 
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={[styles.primaryButton, isMissingRequired && styles.buttonDisabled]}
-            onPress={handleCalculate}
-            disabled={isMissingRequired}
-          >
-            <Text style={styles.primaryButtonText}>Calculate</Text>
-          </TouchableOpacity>
+  <View style={{ height: 12 }} />
 
-          <TouchableOpacity style={styles.dangerButton} onPress={clearAll}>
-            <Text style={styles.dangerButtonText}>Clear</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity
-          style={[styles.secondaryButton, (payrollDollars || teamHours) ? null : styles.buttonDisabled]}
-          onPress={copyResults}
-          disabled={!payrollDollars && !teamHours}
-        >
-          <Text style={styles.secondaryButtonText}>Copy Results</Text>
-        </TouchableOpacity>
-
-        {/* MAIN MENU BUTTON */}
-        <View style={styles.menuWrap}>
-          <Link href="/" asChild>
-            <TouchableOpacity style={styles.menuButton}>
-              <Text style={styles.menuButtonText}>Main Menu</Text>
-            </TouchableOpacity>
-          </Link>
-        </View>
-      </View>
+  <AppButton
+    title="Main Menu"
+    variant="neutral"
+    onPress={() => router.replace("/")}
+  />
+</View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  // Layout
   container: {
-    padding: 20,
-    paddingBottom: 44,
-    backgroundColor: "#F6F7F9",
+    padding: 28,
+    paddingBottom: 60,
+    backgroundColor: "#fafafa",
   },
   pageTitle: {
-    fontSize: 26,
-    fontWeight: "800",
-    marginBottom: 14,
-    textAlign: "left",
+    fontSize: 28,
+    fontWeight: "900",
+    marginBottom: 12,
     color: "#111",
   },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#E6E7EA",
-  },
-
-  // Loading state
-  loadingWrap: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-    backgroundColor: "#F6F7F9",
-  },
-  loadingText: {
+  warning: {
     marginTop: 12,
-    fontSize: 16,
-    color: "#333",
-  },
-
-  // Fields
-  field: {
-    marginBottom: 14,
-  },
-  label: {
-    marginBottom: 6,
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#222",
-  },
-  required: {
-    color: "#C62828",
-    fontWeight: "800",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#CFCFCF",
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    fontSize: 18,
-    backgroundColor: "#FFF",
-    color: "#111",
-  },
-  inputReadOnly: {
-    backgroundColor: "#F2F3F6",
-    color: "#333",
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: "#ECEEF2",
-    marginVertical: 10,
-  },
-
-  // Notices
-  notice: {
-    marginTop: 4,
     padding: 12,
     borderRadius: 12,
-    backgroundColor: "#FFF6E5",
+    backgroundColor: "#fff5f5",
     borderWidth: 1,
-    borderColor: "#FFE0A6",
-  },
-  noticeTitle: {
-    fontWeight: "800",
-    color: "#7A4B00",
-    marginBottom: 4,
-  },
-  noticeText: {
-    color: "#5A3A00",
+    borderColor: "#f0b7b7",
+    color: "#b71c1c",
     fontSize: 14,
-    lineHeight: 18,
+    fontWeight: "700",
   },
-
-  emptyHint: {
-    marginTop: 6,
-    paddingVertical: 8,
-  },
-  emptyHintText: {
-    color: "#666",
-    fontSize: 13,
-  },
-
-  // Buttons
   buttonRow: {
     flexDirection: "row",
     gap: 12,
-    marginTop: 14,
+    marginTop: 18,
   },
-  primaryButton: {
+  buttonCol: {
     flex: 1,
-    backgroundColor: "#1A73E8",
-    paddingVertical: 12,
-    borderRadius: 12,
+  },
+  actions: {
+    marginTop: 18,
     alignItems: "center",
   },
-  primaryButtonText: {
-    color: "#FFF",
-    fontWeight: "800",
-    fontSize: 16,
-  },
-  dangerButton: {
-    flex: 1,
-    backgroundColor: "#C62828",
-    paddingVertical: 12,
+  stateBox: {
+    marginTop: 10,
+    marginBottom: 6,
+    padding: 12,
     borderRadius: 12,
-    alignItems: "center",
-  },
-  dangerButtonText: {
-    color: "#FFF",
-    fontWeight: "800",
-    fontSize: 16,
-  },
-  secondaryButton: {
-    marginTop: 12,
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#1A73E8",
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    borderColor: "#e6e6e6",
   },
-  secondaryButtonText: {
-    color: "#1A73E8",
-    fontWeight: "800",
-    fontSize: 16,
-  },
-  buttonDisabled: {
-    opacity: 0.45,
-  },
-
-  // Menu
-  menuWrap: {
-    marginTop: 16,
-    alignItems: "center",
-  },
-  menuButton: {
-    backgroundColor: "#4B5563",
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 12,
-  },
-  menuButtonText: {
-    color: "#FFF",
-    fontSize: 15,
-    fontWeight: "800",
+  stateText: {
+    color: "#666",
+    fontWeight: "600",
   },
 });

@@ -19,12 +19,19 @@ export function safeDivisionWarning(hours, hourlyCost) {
   return "";
 }
 
-export function parseNumber(str: string) {
-  return parseFloat(
-    (str || "")
-      .replace(/[^0-9.-]/g, "")
-      .trim()
-  ) || 0;
+function parseNumber(input: unknown): number {
+  if (input === null || input === undefined) return 0;
+
+  // If it's already a number, just return it (and guard NaN)
+  if (typeof input === "number") return Number.isFinite(input) ? input : 0;
+
+  // Coerce everything else to string safely
+  const str = String(input);
+
+  const cleaned = str.replace(/[^0-9.-]/g, "").trim();
+  const n = parseFloat(cleaned);
+
+  return Number.isFinite(n) ? n : 0;
 }
 
 // --- Formatting ---

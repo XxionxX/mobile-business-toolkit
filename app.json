@@ -1,0 +1,8 @@
+{
+  "expo": {
+    "name": "mobile-business-toolkit",
+    "slug": "mobile-business-toolkit",
+    "scheme": "mbt",
+    "plugins": ["expo-router"]
+  }
+}
