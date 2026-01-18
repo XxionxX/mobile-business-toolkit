@@ -1,23 +1,34 @@
 // components/ui/Card.tsx
 import React from "react";
-import { View, StyleSheet, ViewStyle } from "react-native";
-import { theme } from "../../lib/ui/theme";
+import { View, StyleSheet, ViewProps } from "react-native";
+import { theme } from "../../lib/theme";
+import AppText from "./AppText";
 
-type Props = {
+type Props = ViewProps & {
+  title?: string;
+  subtitle?: string;
   children: React.ReactNode;
-  style?: ViewStyle;
 };
 
-export default function Card({ children, style }: Props) {
-  return <View style={[styles.card, style]}>{children}</View>;
+export default function Card({ title, subtitle, style, children, ...rest }: Props) {
+  return (
+    <View style={[styles.card, style]} {...rest}>
+      {title ? <AppText variant="section">{title}</AppText> : null}
+      {subtitle ? <AppText variant="helper">{subtitle}</AppText> : null}
+      <View style={styles.body}>{children}</View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.lg,
-    padding: theme.space[4],
     borderWidth: 1,
     borderColor: theme.colors.border,
+    padding: theme.space[4],
+  },
+  body: {
+    marginTop: theme.space[3],
   },
 });

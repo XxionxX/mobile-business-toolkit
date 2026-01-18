@@ -8,7 +8,7 @@ import {
   ViewStyle,
   TextStyle,
 } from "react-native";
-import { theme } from "../../lib/ui/theme";
+import { theme } from "../../lib/theme";
 
 type Variant = "primary" | "danger" | "neutral" | "ghost";
 

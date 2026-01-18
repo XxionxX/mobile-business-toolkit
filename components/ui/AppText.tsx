@@ -1,7 +1,7 @@
 // components/ui/AppText.tsx
 import React from "react";
 import { Text, TextProps, StyleSheet } from "react-native";
-import { theme } from "../../lib/ui/theme";
+import { theme } from "../../lib/theme";
 
 type Variant = "title" | "section" | "label" | "body" | "helper" | "error";
 

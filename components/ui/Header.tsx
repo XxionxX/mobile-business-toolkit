@@ -4,7 +4,7 @@ import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import AppText from "./AppText";
 import AppButton from "./AppButton";
-import { theme } from "../../lib/ui/theme";
+import { theme } from "../../lib/theme";
 
 type Props = {
   title: string;

@@ -1,56 +1,35 @@
 // app/index.tsx
 import React from "react";
-import { StyleSheet } from "react-native";
 import { Link } from "expo-router";
-
-import { Screen, Card, AppText, Button } from "../components/ui";
-import { theme } from "../lib/ui/theme";
+import { AppText, Button, Card, Screen } from "../components/ui";
 
 export default function AppHome() {
   return (
-    <Screen scroll={false} contentStyle={styles.container}>
-      <AppText variant="title" style={styles.title}>
+    <Screen>
+      <AppText variant="title" style={{ textAlign: "center" }}>
         Mobile Business Toolkit
       </AppText>
 
-      <Card>
-        <AppText variant="section" style={styles.cardTitle}>
-          Calculators
-        </AppText>
-
-        <AppText variant="helper" style={styles.cardSubtitle}>
-          Quick tools for payroll, staffing, and operations.
-        </AppText>
-
+      <Card
+        title="Calculators"
+        subtitle="Quick tools for payroll, staffing, and operations."
+      >
         <Link href="/calculators/payroll" asChild>
           <Button title="Payroll Calculator" variant="primary" />
         </Link>
 
-        <AppText variant="helper" style={styles.hint}>
-          More modules will appear here as you add them.
-        </AppText>
+        <View style={{ height: 12 }} />
+
+	<Link href="/calculators/profit-per-labor-hour" asChild>
+          <Button title="Profit per Labor Hour" variant="primary" />
+        </Link>
+
+        <View style={{ height: 12 }} />
+
+        <Link href="/calculators/revenue-hours" asChild>
+     n    <Button title="Revenue → Hours Estimator" variant="primary" />
+        </Link>
       </Card>
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingTop: theme.space[5],
-    backgroundColor: theme.colors.bg,
-  },
-  title: {
-    textAlign: "center",
-    marginTop: theme.space[2], // ~8px
-    marginBottom: theme.space[4],
-  },
-  cardTitle: {
-    marginBottom: theme.space[2],
-  },
-  cardSubtitle: {
-    marginBottom: theme.space[3],
-  },
-  hint: {
-    marginTop: theme.space[3],
-  },
-});

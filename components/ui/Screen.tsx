@@ -1,7 +1,7 @@
 // components/ui/Screen.tsx
 import React from "react";
 import { View, ScrollView, StyleSheet, ViewStyle } from "react-native";
-import { theme } from "../../lib/ui/theme";
+import { theme } from "../../lib/theme";
 
 type Props = {
   children: React.ReactNode;

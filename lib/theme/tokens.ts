@@ -1,5 +1,4 @@
 // lib/theme/tokens.ts
-
 export const tokens = {
   colors: {
     bg: "#F6F7F9",
@@ -18,7 +17,7 @@ export const tokens = {
     warningText: "#B71C1C",
   },
 
-  // spacing scale (index-based so your existing theme.space[4] style works)
+  // spacing scale (index-based so theme.space[4] style works)
   space: {
     0: 0,
     1: 4,

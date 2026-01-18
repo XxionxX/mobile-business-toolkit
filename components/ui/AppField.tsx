@@ -2,7 +2,7 @@
 import React from "react";
 import { View, TextInput, StyleSheet, TextInputProps } from "react-native";
 import AppText from "./AppText";
-import { theme } from "../../lib/ui/theme";
+import { theme } from "../../lib/theme";
 
 type Props = {
   label: string;
@@ -50,9 +50,7 @@ export default function AppField({
       />
 
       {hasError ? <AppText variant="error">{errorText}</AppText> : null}
-      {!hasError && helperText ? (
-        <AppText variant="helper">{helperText}</AppText>
-      ) : null}
+      {!hasError && helperText ? <AppText variant="helper">{helperText}</AppText> : null}
     </View>
   );
 }
@@ -61,7 +59,6 @@ const styles = StyleSheet.create({
   wrap: {
     marginTop: theme.space[4],
   },
-
   input: {
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -71,12 +68,11 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
     color: theme.colors.text,
   },
-
   inputReadOnly: {
     backgroundColor: theme.colors.bg,
-    color: theme.colors.subtext,
+    color: theme.colors.text,
+    opacity: 0.85,
   },
-
   inputError: {
     borderColor: theme.colors.danger,
   },
