@@ -1,8 +1,5 @@
-// components/ui/AppField.tsx
 import React from "react";
-import { View, TextInput, StyleSheet, TextInputProps } from "react-native";
-import AppText from "./AppText";
-import { theme } from "../../lib/ui/theme";
+import { View, Text, TextInput, StyleSheet, TextInputProps } from "react-native";
 
 type Props = {
   label: string;
@@ -28,10 +25,10 @@ export default function AppField({
 
   return (
     <View style={styles.wrap}>
-      <AppText variant="label">
+      <Text style={styles.label}>
         {label}
         {required ? " *" : ""}
-      </AppText>
+      </Text>
 
       <TextInput
         value={value}
@@ -42,39 +39,51 @@ export default function AppField({
           readOnly && styles.inputReadOnly,
           hasError && styles.inputError,
         ]}
-        placeholderTextColor={theme.colors.placeholder}
-        accessibilityLabel={label}
-        accessibilityHint={helperText}
-        accessibilityState={{ disabled: readOnly }}
+        placeholderTextColor="#8a8a8a"
+	accessibilityLabel={label}
         {...inputProps}
       />
 
-      {hasError ? <AppText variant="error">{errorText}</AppText> : null}
-      {!hasError && helperText ? (
-        <AppText variant="helper">{helperText}</AppText>
-      ) : null}
+      {hasError ? <Text style={styles.error}>{errorText}</Text> : null}
+      {!hasError && helperText ? <Text style={styles.helper}>{helperText}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    marginTop: theme.space[4],
+    marginTop: 12,
+  },
+  label: {
+    marginBottom: 6,
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111",
   },
   input: {
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.md,
-    padding: theme.space[4],
+    borderColor: "#cfcfcf",
+    borderRadius: 12,
+    padding: 14,
     fontSize: 18,
-    backgroundColor: theme.colors.surface,
-    color: theme.colors.text,
+    backgroundColor: "#fff",
   },
   inputReadOnly: {
     backgroundColor: "#f4f4f4",
     color: "#333",
   },
   inputError: {
-    borderColor: theme.colors.danger,
+    borderColor: "#c62828",
+  },
+  helper: {
+    marginTop: 6,
+    color: "#6b6b6b",
+    fontSize: 13,
+  },
+  error: {
+    marginTop: 6,
+    color: "#c62828",
+    fontSize: 13,
+    fontWeight: "600",
   },
 });

@@ -6,6 +6,7 @@ import * as Clipboard from "expo-clipboard";
 
 import AppButton from "../../../components/ui/AppButton";
 import AppField from "../../../components/ui/AppField";
+import ToastHost, { showToast } from "../../../components/ui/Toast";
 
 import {
   calculatePayroll,
@@ -103,22 +104,26 @@ export default function PayrollCalculatorScreen() {
   }
 
   // --- Copy result ---
-  async function copyResults() {
-    const text = `Payroll: ${payrollDollars}\nHours: ${teamHours}`;
-    await Clipboard.setStringAsync(text);
-    Alert.alert("Copied!", "Results copied to clipboard.");
-  }
+async function copyResults() {
+  const text = `Payroll: ${payrollDollars}\nHours: ${teamHours}`;
+  await Clipboard.setStringAsync(text);
+  showToast("Copied!");
+}
 
-  const hasResults = useMemo(() => payrollDollars !== "" || teamHours !== "", [payrollDollars, teamHours]);
-
-  return (
+const hasResults = useMemo(
+  () => payrollDollars !== "" || teamHours !== "",
+  [payrollDollars, teamHours]
+);
+return (
+  <View style={{ flex: 1 }}>
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.pageTitle}>Payroll Calculator</Text>
-{isHydrating ? (
-  <View style={styles.stateBox}>
-    <Text style={styles.stateText}>Loading saved values…</Text>
-  </View>
-) : null}
+
+      {isHydrating ? (
+        <View style={styles.stateBox}>
+          <Text style={styles.stateText}>Loading saved values…</Text>
+        </View>
+      ) : null}
 
 <AppField
   label="Estimated or Total Sales"
@@ -187,9 +192,12 @@ export default function PayrollCalculatorScreen() {
     variant="neutral"
     onPress={() => router.replace("/")}
   />
-</View>
+  </View>
     </ScrollView>
-  );
+
+    <ToastHost />
+  </View>
+);
 }
 
 const styles = StyleSheet.create({
