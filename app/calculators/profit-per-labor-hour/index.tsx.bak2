@@ -8,7 +8,13 @@ import * as Clipboard from "expo-clipboard";
 import {
   AppButton,
   AppField,
-  CalcScreen, showToast, Card, AppText, WarningList, } from "../../../components/ui";
+  Header,
+  Screen,
+  ToastHost,
+  showToast,
+  Card,
+  AppText,
+} from "../../../components/ui";
 
 import {
   calculateProfitPerLaborHour,
@@ -129,8 +135,11 @@ export default function ProfitPerLaborHourScreen() {
   }
 
   return (
-  <CalcScreen title="Profit per Labor Hour" showBack>
-{isHydrating ? (
+    <View style={{ flex: 1 }}>
+      <Screen>
+        <Header title="Profit per Labor Hour" showBack />
+
+        {isHydrating ? (
           <Card>
             <AppText variant="helper">Loading saved values…</AppText>
           </Card>
@@ -155,14 +164,18 @@ export default function ProfitPerLaborHourScreen() {
             label="COGS"
             required
             value={cogs}
-            onChangeText={setCogs}placeholder="0"
+            onChangeText={setCogs}
+            inputMode="money"
+            placeholder="0"
   format="currency"
           />
 
           <AppField
             label="Other Costs"
             value={otherCosts}
-            onChangeText={setOtherCosts}placeholder="0"
+            onChangeText={setOtherCosts}
+            inputMode="money"
+            placeholder="0"
   format="currency"
           />
 
@@ -186,7 +199,15 @@ export default function ProfitPerLaborHourScreen() {
             placeholder="—"
           />
 
-          <WarningList warnings={warnings} />
+          {warnings.length ? (
+            <View style={styles.warnBox}>
+              {warnings.map((w, i) => (
+                <AppText key={i} variant="error">
+                  {w}
+                </AppText>
+              ))}
+            </View>
+          ) : null}
 
           <View style={styles.row}>
             <View style={styles.col}>
@@ -214,8 +235,11 @@ export default function ProfitPerLaborHourScreen() {
             onPress={() => router.replace("/")}
           />
         </Card>
-  </CalcScreen>
-);
+      </Screen>
+
+      <ToastHost />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

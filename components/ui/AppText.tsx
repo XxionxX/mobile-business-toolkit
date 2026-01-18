@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: theme.font.title,
     fontWeight: theme.weight.heavy,
+   // marginTop: theme.space[2],
     marginBottom: theme.space[3],
   },
   section: {

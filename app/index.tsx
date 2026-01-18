@@ -7,7 +7,7 @@ import { AppText, Button, Card, Screen } from "../components/ui";
 export default function AppHome() {
   return (
     <Screen>
-      <AppText variant="title" style={{ textAlign: "center" }}>
+      <AppText variant="title" style={{ textAlign: "center", marginTop: 12, marginBottom: 4 }}>
         Mobile Business Toolkit
       </AppText>
 

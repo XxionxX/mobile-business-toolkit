@@ -8,7 +8,12 @@ import { router } from "expo-router";
 import {
   AppButton,
   AppField,
-  CalcScreen, showToast, Card, AppText, WarningList,
+  Header,
+  Screen,
+  ToastHost,
+  showToast,
+  Card,
+  AppText,
 } from "../../../components/ui";
 
 import {
@@ -94,8 +99,11 @@ export default function RevenueHoursScreen() {
   }
 
   return (
-  <CalcScreen title="Revenue → Hours" showBack>
-{isHydrating ? (
+    <View style={{ flex: 1 }}>
+      <Screen>
+        <Header title="Revenue → Hours" showBack />
+
+        {isHydrating ? (
           <Card>
             <AppText variant="helper">Loading saved values…</AppText>
           </Card>
@@ -109,8 +117,9 @@ export default function RevenueHoursScreen() {
             label="Revenue Target"
             required
             value={revenueTarget}
-            onChangeText={setRevenueTarget}placeholder="0"
-  format="currency"
+            onChangeText={setRevenueTarget}
+            inputMode="money"
+            placeholder="0"
           />
 
 	  <AppField
@@ -132,7 +141,15 @@ export default function RevenueHoursScreen() {
             placeholder="—"
           />
 
-          <WarningList warnings={warnings} />
+          {warnings.length ? (
+            <View style={styles.warnBox}>
+              {warnings.map((w, i) => (
+                <AppText key={i} variant="error">
+                  {w}
+                </AppText>
+              ))}
+            </View>
+          ) : null}
 
           <View style={styles.row}>
             <View style={styles.col}>
@@ -160,8 +177,11 @@ export default function RevenueHoursScreen() {
             onPress={() => router.replace("/")}
           />
         </Card>
-  </CalcScreen>
-);
+      </Screen>
+
+      <ToastHost />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

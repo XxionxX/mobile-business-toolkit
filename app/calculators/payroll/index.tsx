@@ -1,10 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Clipboard from "expo-clipboard";
-
-import { AppButton, AppField, ToastHost, showToast } from "../../../components/ui";
+import { AppButton, AppField, CalcScreen, showToast } from "../../../components/ui";
 
 import {
   calculatePayroll,
@@ -113,11 +111,8 @@ const hasResults = useMemo(
   [payrollDollars, teamHours]
 );
 return (
-  <View style={{ flex: 1 }}>
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.pageTitle}>Payroll Calculator</Text>
-
-      {isHydrating ? (
+  <CalcScreen title="Payroll Calculator" showBack contentStyle={styles.container}>
+        {isHydrating ? (
         <View style={styles.stateBox}>
           <Text style={styles.stateText}>Loading saved values…</Text>
         </View>
@@ -148,7 +143,8 @@ return (
   required
   value={hourlyCost}
   onChangeText={setHourlyCost}
-  inputMode="money"
+  format="currency"
+  keyboardType="numeric"
   placeholder="0"
 />
 
@@ -193,10 +189,7 @@ return (
     onPress={() => router.replace("/")}
   />
   </View>
-    </ScrollView>
-
-    <ToastHost />
-  </View>
+  </CalcScreen>
 );
 }
 
