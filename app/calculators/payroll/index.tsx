@@ -4,9 +4,7 @@ import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Clipboard from "expo-clipboard";
 
-import AppButton from "../../../components/ui/AppButton";
-import AppField from "../../../components/ui/AppField";
-import ToastHost, { showToast } from "../../../components/ui/Toast";
+import { AppButton, AppField, ToastHost, showToast } from "../../../components/ui";
 
 import {
   calculatePayroll,

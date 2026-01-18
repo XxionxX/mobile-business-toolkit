@@ -2,7 +2,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Link } from "expo-router";
-import { Button } from "../components/ui/Button";
+import { Button } from "../components/ui"; // design-system button
 
 export default function AppHome() {
   return (
