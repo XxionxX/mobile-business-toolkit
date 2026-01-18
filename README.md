@@ -67,7 +67,7 @@ The framework is designed to be:
     │           └── logic.ts         # business math, persistence, formatting
     │
     ├── components/
-    │   └── NumericInput.tsx
+    │   └── (removed legacy NumericInput)
     │
     ├── lib/
     │   └── formatting.ts
