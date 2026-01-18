@@ -5,9 +5,22 @@ import * as Clipboard from "expo-clipboard";
 import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 
-import { AppButton, AppField, Header, Screen, ToastHost, showToast, Card, AppText } from "../../../components/ui";
-import { calculateRevenueHours, formatResults } from "../../../lib/calculators/revenue-hours/logic";
-import { formatCurrency, formatHours } from "../../../lib/formatting";
+import {
+  AppButton,
+  AppField,
+  Header,
+  Screen,
+  ToastHost,
+  showToast,
+  Card,
+  AppText,
+} from "../../../components/ui";
+
+import {
+  calculateRevenueHours,
+  formatResults,
+} from "../../../lib/calculators/revenue-hours/logic";
+
 import { theme } from "../../../lib/ui/theme";
 
 const STORAGE_KEY = "calc:revenue-hours:v1";
@@ -64,7 +77,12 @@ export default function RevenueHoursScreen() {
     setSalesPerLaborHour("");
     setHours("");
     setWarnings([]);
-    persist({ revenueTarget: "", salesPerLaborHour: "", hours: "", warnings: [] });
+    persist({
+      revenueTarget: "",
+      salesPerLaborHour: "",
+      hours: "",
+      warnings: [],
+    });
   }
 
   const hasResults = useMemo(() => hours !== "", [hours]);
@@ -75,6 +93,7 @@ export default function RevenueHoursScreen() {
       `Revenue Target: ${revenueTarget || "—"}\n` +
       `Sales per Labor Hour: ${salesPerLaborHour || "—"}\n` +
       `Estimated Hours: ${hours || "—"}`;
+
     await Clipboard.setStringAsync(text);
     showToast("Copied!");
   }
@@ -98,24 +117,29 @@ export default function RevenueHoursScreen() {
             label="Revenue Target"
             required
             value={revenueTarget}
-            onChangeText={(v) => setRevenueTarget(formatCurrency(v))}
-            keyboardType="numeric"
+            onChangeText={setRevenueTarget}
+            inputMode="money"
             placeholder="0"
           />
 
-          <AppField
-            label="Sales per Labor Hour"
-            required
-            value={salesPerLaborHour}
-            onChangeText={(v) => setSalesPerLaborHour(formatCurrency(v))}
-            keyboardType="numeric"
-            placeholder="0"
-            helperText="Example: $150 means each labor hour supports ~$150 in revenue."
-          />
+	  <AppField
+  label="Sales per Labor Hour"
+  required
+  value={salesPerLaborHour}
+  onChangeText={setSalesPerLaborHour}
+  format="currency"
+  keyboardType="numeric"
+  placeholder="0"
+/>
         </Card>
 
         <Card title="Results">
-          <AppField label="Estimated Labor Hours" value={hours} readOnly placeholder="—" />
+          <AppField
+            label="Estimated Labor Hours"
+            value={hours}
+            readOnly
+            placeholder="—"
+          />
 
           {warnings.length ? (
             <View style={styles.warnBox}>
@@ -138,11 +162,20 @@ export default function RevenueHoursScreen() {
 
           <View style={{ height: theme.space[3] }} />
 
-          <AppButton title="COPY RESULTS" variant="ghost" onPress={copyResults} disabled={!hasResults} />
+          <AppButton
+            title="COPY RESULTS"
+            variant="ghost"
+            onPress={copyResults}
+            disabled={!hasResults}
+          />
 
           <View style={{ height: theme.space[3] }} />
 
-          <AppButton title="Main Menu" variant="neutral" onPress={() => router.replace("/")} />
+          <AppButton
+            title="Main Menu"
+            variant="neutral"
+            onPress={() => router.replace("/")}
+          />
         </Card>
       </Screen>
 

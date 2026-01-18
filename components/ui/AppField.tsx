@@ -1,8 +1,11 @@
 // components/ui/AppField.tsx
-import React from "react";
+import React, { useMemo } from "react";
 import { View, TextInput, StyleSheet, TextInputProps } from "react-native";
 import AppText from "./AppText";
-import { theme } from "../../lib/theme";
+import { theme } from "../../lib/ui/theme";
+import { formatCurrency, formatPercentage } from "../../lib/formatting";
+
+type Format = "currency" | "percentage" | "none";
 
 type Props = {
   label: string;
@@ -12,6 +15,7 @@ type Props = {
   helperText?: string;
   errorText?: string;
   readOnly?: boolean;
+  format?: Format;
 } & Omit<TextInputProps, "value" | "onChangeText" | "editable">;
 
 export default function AppField({
@@ -22,9 +26,18 @@ export default function AppField({
   helperText,
   errorText,
   readOnly = false,
+  format = "none",
   ...inputProps
 }: Props) {
   const hasError = !!errorText;
+
+  // 👇 display-only formatting (does NOT affect typing)
+  const displayValue = useMemo(() => {
+    if (!value) return "";
+    if (format === "currency") return formatCurrency(value);
+    if (format === "percentage") return `${value}%`;
+    return value;
+  }, [value, format]);
 
   return (
     <View style={styles.wrap}>
@@ -34,7 +47,7 @@ export default function AppField({
       </AppText>
 
       <TextInput
-        value={value}
+        value={displayValue}
         onChangeText={onChangeText}
         editable={!readOnly}
         style={[
@@ -70,7 +83,6 @@ const styles = StyleSheet.create({
   },
   inputReadOnly: {
     backgroundColor: theme.colors.bg,
-    color: theme.colors.text,
     opacity: 0.85,
   },
   inputError: {

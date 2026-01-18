@@ -1,5 +1,6 @@
 // app/index.tsx
 import React from "react";
+import { View } from "react-native";
 import { Link } from "expo-router";
 import { AppText, Button, Card, Screen } from "../components/ui";
 
@@ -27,7 +28,7 @@ export default function AppHome() {
         <View style={{ height: 12 }} />
 
         <Link href="/calculators/revenue-hours" asChild>
-     n    <Button title="Revenue → Hours Estimator" variant="primary" />
+          <Button title="Revenue → Hours Estimator" variant="primary" />
         </Link>
       </Card>
     </Screen>

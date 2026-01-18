@@ -1,5 +1,5 @@
 // lib/calculators/profit-per-labor-hour/logic.ts
-import { parseNumber, formatCurrency, formatNumber, formatHours } from "../../formatting";
+import { parseNumber, formatCurrency, formatHours } from "../../formatting";
 
 type Inputs = {
   revenue: string;
@@ -15,7 +15,6 @@ export function calculateProfitPerLaborHour(input: Inputs) {
   const laborHours = parseNumber(input.laborHours);
 
   const profit = revenue - cogs - otherCosts;
-
   const profitPerHour = laborHours > 0 ? profit / laborHours : 0;
 
   const warnings: string[] = [];

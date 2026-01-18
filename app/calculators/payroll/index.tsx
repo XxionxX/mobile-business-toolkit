@@ -127,7 +127,8 @@ return (
   label="Estimated or Total Sales"
   required
   value={sales}
-  onChangeText={(v) => setSales(formatCurrency(v))}
+  onChangeText={setSales}
+  format="currency"
   keyboardType="numeric"
   placeholder="0"
 />
@@ -136,7 +137,8 @@ return (
   label="Payroll Percent Goal"
   required
   value={percent}
-  onChangeText={(v) => setPercent(formatPercentage(v))}
+  onChangeText={setPercent}
+  format="percentage"
   keyboardType="numeric"
   placeholder="0"
 />
@@ -145,8 +147,8 @@ return (
   label="Estimated or Total Hourly Cost"
   required
   value={hourlyCost}
-  onChangeText={(v) => setHourlyCost(formatCurrency(v))}
-  keyboardType="numeric"
+  onChangeText={setHourlyCost}
+  inputMode="money"
   placeholder="0"
 />
 
