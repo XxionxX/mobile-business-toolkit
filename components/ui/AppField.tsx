@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
   wrap: {
     marginTop: theme.space[4],
   },
+
   input: {
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -70,10 +71,12 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
     color: theme.colors.text,
   },
+
   inputReadOnly: {
-    backgroundColor: "#f4f4f4",
-    color: "#333",
+    backgroundColor: theme.colors.bg,
+    color: theme.colors.subtext,
   },
+
   inputError: {
     borderColor: theme.colors.danger,
   },
