@@ -1,5 +1,5 @@
 // lib/calculators/_template/storage.ts
-import AsyncStorage from "-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const STORAGE_KEY = "calc:template:v1";
 

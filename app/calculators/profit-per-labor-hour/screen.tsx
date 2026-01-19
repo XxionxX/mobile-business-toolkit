@@ -167,7 +167,7 @@ export default function ProfitPerLaborHourScreen() {
           required
           value={laborHours}
           onChangeText={setLaborHours}
-          inputMode="number"
+          inputMode="numeric"
           keyboardType="decimal-pad"
           placeholder="0"
         />
