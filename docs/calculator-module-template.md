@@ -1,7 +1,33 @@
 # 🧩 Calculator Module Template  
-*A guide for creating new calculator modules in the Mobile Business Toolkit (MBT).*
 
-This template ensures every module follows the same high-quality structure, UI patterns, data handling, and offline-sync logic.
+Every calculator consists of:
+
+- `app/calculators/<slug>/index.tsx` (screen / UI / storage)
+- `lib/calculators/<slug>/logic.ts` (pure math + warnings + formatting)
+
+## Generator
+
+Use bash:
+
+./scripts/new-calculator.sh "Calculator Title" slug-kebab-case
+
+This creates a screen that uses:
+
+- CalcScreen (Header + ToastHost + Screen padding)
+- Card sections (Inputs / Results)
+- WarningList (standard warning rendering)
+- AsyncStorage persistence (STORAGE_KEY = "calc:<slug>:v1")
+- Clipboard “Copy Results”
+- “Main Menu” button
+
+## Rules
+- UI file should never do math directly — call calculateX() from logic.
+- Logic must be pure and return { ..., warnings: string[] }.
+- Formatting lives in lib/formatting.ts (parseNumber, formatCurrency, formatHours, etc).
+- Inputs should use AppField props:
+- - format="currency" for money
+- - format="percentage" for percents
+- - otherwise inputMode="number" + keyboardType="decimal-pad"
 
 ---
 

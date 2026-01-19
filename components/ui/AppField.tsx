@@ -1,5 +1,11 @@
-import React from "react";
-import { View, Text, TextInput, StyleSheet, TextInputProps } from "react-native";
+// components/ui/AppField.tsx
+import React, { useMemo } from "react";
+import { View, TextInput, StyleSheet, TextInputProps } from "react-native";
+import AppText from "./AppText";
+import { theme } from "../../lib/ui/theme";
+import { formatCurrency, formatPercentage } from "../../lib/formatting";
+
+type Format = "currency" | "percentage" | "none";
 
 type Props = {
   label: string;
@@ -9,6 +15,7 @@ type Props = {
   helperText?: string;
   errorText?: string;
   readOnly?: boolean;
+  format?: Format;
 } & Omit<TextInputProps, "value" | "onChangeText" | "editable">;
 
 export default function AppField({
@@ -19,19 +26,28 @@ export default function AppField({
   helperText,
   errorText,
   readOnly = false,
+  format = "none",
   ...inputProps
 }: Props) {
   const hasError = !!errorText;
 
+  // 👇 display-only formatting (does NOT affect typing)
+  const displayValue = useMemo(() => {
+    if (!value) return "";
+    if (format === "currency") return formatCurrency(value);
+    if (format === "percentage") return `${value}%`;
+    return value;
+  }, [value, format]);
+
   return (
     <View style={styles.wrap}>
-      <Text style={styles.label}>
+      <AppText variant="label">
         {label}
         {required ? " *" : ""}
-      </Text>
+      </AppText>
 
       <TextInput
-        value={value}
+        value={displayValue}
         onChangeText={onChangeText}
         editable={!readOnly}
         style={[
@@ -39,50 +55,37 @@ export default function AppField({
           readOnly && styles.inputReadOnly,
           hasError && styles.inputError,
         ]}
-        placeholderTextColor="#8a8a8a"
+        placeholderTextColor={theme.colors.placeholder}
+        accessibilityLabel={label}
+        accessibilityHint={helperText}
+        accessibilityState={{ disabled: readOnly }}
         {...inputProps}
       />
 
-      {hasError ? <Text style={styles.error}>{errorText}</Text> : null}
-      {!hasError && helperText ? <Text style={styles.helper}>{helperText}</Text> : null}
+      {hasError ? <AppText variant="error">{errorText}</AppText> : null}
+      {!hasError && helperText ? <AppText variant="helper">{helperText}</AppText> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    marginTop: 12,
-  },
-  label: {
-    marginBottom: 6,
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#111",
+    marginTop: theme.space[4],
   },
   input: {
     borderWidth: 1,
-    borderColor: "#cfcfcf",
-    borderRadius: 12,
-    padding: 14,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
+    padding: theme.space[4],
     fontSize: 18,
-    backgroundColor: "#fff",
+    backgroundColor: theme.colors.surface,
+    color: theme.colors.text,
   },
   inputReadOnly: {
-    backgroundColor: "#f4f4f4",
-    color: "#333",
+    backgroundColor: theme.colors.bg,
+    opacity: 0.85,
   },
   inputError: {
-    borderColor: "#c62828",
-  },
-  helper: {
-    marginTop: 6,
-    color: "#6b6b6b",
-    fontSize: 13,
-  },
-  error: {
-    marginTop: 6,
-    color: "#c62828",
-    fontSize: 13,
-    fontWeight: "600",
+    borderColor: theme.colors.danger,
   },
 });
