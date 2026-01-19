@@ -30,12 +30,20 @@ vision for scaling the toolkit from a single-module MVP to an enterprise-ready p
 ---
 
 ## 🧩 Phase 2 — Framework Architecture
-- `/lib` utilities: formatting, validation, error utils
-- API wrapper layer for Supabase
-- Central logging service
-- Error boundaries for pages
-- Runtime configuration system
+Focus: establishing a stable internal framework so new calculators and features
+can be added without UI rewrites or architectural debt.
+
 - Standardized module structure for all calculators
+  - Shared screen wrapper (CalcScreen)
+  - Consistent header, spacing, warnings, and toast handling
+- `/lib` utilities:
+  - formatting (currency, hours, percentages)
+  - validation helpers
+  - shared error utilities
+- Central logging service (initially console-based, swappable later)
+- Error boundaries for calculator screens and routes
+- Runtime configuration system (env/app.json driven)
+- API wrapper layer for Supabase (readiness, not full auth yet)
 
 ---
 

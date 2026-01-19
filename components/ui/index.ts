@@ -13,3 +13,5 @@ export { default as Field } from "./AppField";
 
 export { default as CalcScreen } from "./CalcScreen";
 export { default as WarningList } from "./WarningList";
+
+export { default as ErrorBoundary } from "./ErrorBoundary";
