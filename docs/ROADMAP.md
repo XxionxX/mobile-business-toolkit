@@ -36,6 +36,7 @@ can be added without UI rewrites or architectural debt.
 - Standardized module structure for all calculators
   - Shared screen wrapper (CalcScreen)
   - Consistent header, spacing, warnings, and toast handling
+  - Storage helpers per calculator (hydrate/persist/defaults)
 - `/lib` utilities:
   - formatting (currency, hours, percentages)
   - validation helpers
@@ -45,16 +46,33 @@ can be added without UI rewrites or architectural debt.
 - Runtime configuration system (env/app.json driven)
 - API wrapper layer for Supabase (readiness, not full auth yet)
 
+Notes:
+- Start Phase 3 “light tooling” early (Prettier + minimal ESLint + typecheck scripts)
+  to reduce refactor risk while Phase 2 is still moving quickly.
+
 ---
 
 ## 🛠️ Phase 3 — Developer Experience & Code Quality
-- ESLint + TypeScript strict mode
-- Prettier formatting rules
-- Husky pre-commit hooks (lint → test → build)
+Goal: improve safety and maintainability without slowing feature delivery.
+Start light; tighten rules over time.
+
+Core (light-first):
+- Add npm scripts:
+  - `format` / `format:check` (Prettier)
+  - `lint` (ESLint)
+  - `typecheck` (tsc --noEmit)
+  - `test` (Jest for logic modules)
+- Prettier formatting rules (low friction, repo-wide consistency)
+- ESLint (minimal rules; avoid style rules that overlap with Prettier)
+- Jest unit tests for `lib/calculators/**/logic.ts` (start with 1–2 modules)
+- GitHub Actions CI:
+  - run `typecheck`, `test`, and `lint` on pull requests and main pushes
+
+Optional / later hardening:
+- TypeScript strict mode (incremental migration)
+- Husky pre-commit hooks (lint → test → typecheck)
 - Commitlint (Conventional Commits)
-- Jest unit tests for logic modules
 - Detox E2E test scaffolding
-- GitHub Actions CI (typecheck + tests + lint)
 - Automatic versioning via semantic releases (future)
 
 ---
