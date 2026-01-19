@@ -1,12 +1,10 @@
 // lib/errors/log.ts
+import { log } from "../logging";
 
 export function logError(err: unknown, info?: unknown) {
-  // Central place for error reporting later (Sentry, Supabase logs, etc.)
-  // For now: console + minimal structure.
   try {
-    console.error("[AppError]", err);
-    if (info) console.error("[AppErrorInfo]", info);
+    log.error(err, info);
   } catch {
-    // ignore logging failures
+    // Never allow logging to crash the app
   }
 }
