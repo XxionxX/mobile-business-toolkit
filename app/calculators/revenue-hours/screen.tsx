@@ -1,6 +1,5 @@
 // app/calculators/revenue-hours/index.tsx
 import React, { useEffect, useMemo, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Clipboard from "expo-clipboard";
 import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
