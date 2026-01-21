@@ -222,7 +222,7 @@ Planned enhancements include:
 ## 🙏 Credits
 
 Maintainer: Robert
-Contact: **placeholder@email.com**
+Contact: **robert@solartreehouse.org**
 
 ---
 
