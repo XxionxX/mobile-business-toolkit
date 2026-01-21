@@ -75,42 +75,42 @@ Business logic is isolated, testable, and reusable across screens.
 
 ## 📂 Project Structure (simplified)
 
-mobile-business-toolkit/
-├── app/
-│   ├── _layout.tsx
-│   ├── index.tsx
-│   └── calculators/
-│       ├── payroll/
-│       ├── revenue-hours/
-│       └── profit-per-labor-hour/
-│
-├── components/
-│   └── ui/
-│       ├── AppButton.tsx
-│       ├── AppField.tsx
-│       ├── AppText.tsx
-│       ├── CalcScreen.tsx
-│       ├── Card.tsx
-│       ├── ErrorBoundary.tsx
-│       ├── Header.tsx
-│       ├── Screen.tsx
-│       └── Toast.tsx
-│
-├── lib/
-│   ├── calculators/
-│   │   └── */logic.ts
-│   ├── formatting.ts
-│   ├── logging/
-│   └── errors/
-│
-├── assets/
-│   └── screenshots/
-│
-├── docs/
-├── scripts/
-├── package.json
-├── tsconfig.json
-└── README.m
+   mobile-business-toolkit/
+   ├── app/
+   │   ├── _layout.tsx
+   │   ├── index.tsx
+   │   └── calculators/
+   │       ├── payroll/
+   │       ├── revenue-hours/
+   │       └── profit-per-labor-hour/
+   │
+   ├── components/
+   │   └── ui/
+   │       ├── AppButton.tsx
+   │       ├── AppField.tsx
+   │       ├── AppText.tsx
+   │       ├── CalcScreen.tsx
+   │       ├── Card.tsx
+   │       ├── ErrorBoundary.tsx
+   │       ├── Header.tsx
+   │       ├── Screen.tsx
+   │       └── Toast.tsx
+   │
+   ├── lib/
+   │   ├── calculators/
+   │   │   └── */logic.ts
+   │   ├── formatting.ts
+   │   ├── logging/
+   │   └── errors/
+   │
+   ├── assets/
+   │   └── screenshots/
+   │
+   ├── docs/
+   ├── scripts/
+   ├── package.json
+   ├── tsconfig.json
+   └── README.m
 
 Each calculator is **self-contained**, making it easy to add new operational tools without refactoring existing ones.
 
@@ -179,12 +179,8 @@ Preview using the **Expo Go** an emulator.
 ![Payroll](assets/screenshots/payroll.png)
 ![Revenue Hours](assets/screenshots/revenue-hours.png)
 ![Profit Per Labor Hour](assets/screenshots/profit-per-labor-hour.png)
-![Calculator Error Message](assets/screenshots/filled-calculator.png)
+![Calculator Error Message](assets/screenshots/filled-calculator-error.png)
 ![Copy Toast](assets/screenshots/copy-toast.png)
-
-copy-toast.png               payroll.png
-filled-calculator-error.png  profit-per-labor-hour.png
-home.png                     revenue-hours.png
 
 ---
 
