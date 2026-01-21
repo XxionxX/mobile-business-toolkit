@@ -14,10 +14,12 @@ export function formatCurrency(input: string | number): string {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 }
 
-export function formatHours(input: string | number): string {
-  const n = parseNumber(input);
-  const s = n.toFixed(2);
-  return s.replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+export function formatHours(value: number) {
+  const n = parseNumber(value);
+  return n.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 export function formatPercentage(input: string | number): string {

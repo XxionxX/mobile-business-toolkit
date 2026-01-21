@@ -16,6 +16,9 @@ type Props = {
   errorText?: string;
   readOnly?: boolean;
   format?: Format;
+
+  // Optional: show a formatted preview line (recommended for currency/%)
+  showPreview?: boolean;
 } & Omit<TextInputProps, "value" | "onChangeText" | "editable">;
 
 export default function AppField({
@@ -27,17 +30,23 @@ export default function AppField({
   errorText,
   readOnly = false,
   format = "none",
+  showPreview = true,
   ...inputProps
 }: Props) {
   const hasError = !!errorText;
 
-  // 👇 display-only formatting (does NOT affect typing)
-  const displayValue = useMemo(() => {
-    if (!value) return "";
-    if (format === "currency") return formatCurrency(value);
-    if (format === "percentage") return `${value}%`;
-    return value;
-  }, [value, format]);
+  // IMPORTANT:
+  // Keep TextInput value *raw* so typing is stable and cursor doesn't jump.
+  const rawValue = value ?? "";
+
+  const preview = useMemo(() => {
+    if (!showPreview) return "";
+    if (!rawValue) return "";
+
+    if (format === "currency") return formatCurrency(rawValue);
+    if (format === "percentage") return formatPercentage(rawValue);
+    return "";
+  }, [rawValue, format, showPreview]);
 
   return (
     <View style={styles.wrap}>
@@ -47,7 +56,7 @@ export default function AppField({
       </AppText>
 
       <TextInput
-        value={displayValue}
+        value={rawValue}
         onChangeText={onChangeText}
         editable={!readOnly}
         style={[
@@ -62,8 +71,13 @@ export default function AppField({
         {...inputProps}
       />
 
+      {/* Optional formatted preview (does not affect typing) */}
+      {preview ? <AppText variant="helper">{preview}</AppText> : null}
+
       {hasError ? <AppText variant="error">{errorText}</AppText> : null}
-      {!hasError && helperText ? <AppText variant="helper">{helperText}</AppText> : null}
+      {!hasError && helperText ? (
+        <AppText variant="helper">{helperText}</AppText>
+      ) : null}
     </View>
   );
 }

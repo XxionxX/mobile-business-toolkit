@@ -1,13 +1,17 @@
 // app/index.tsx
 import React from "react";
 import { View } from "react-native";
-import { Link } from "expo-router";
-import { AppText, Button, Card, Screen } from "../components/ui";
+import { router } from "expo-router";
+
+import { AppText, AppButton, Card, Screen } from "../components/ui";
 
 export default function AppHome() {
   return (
     <Screen>
-      <AppText variant="title" style={{ textAlign: "center", marginTop: 12, marginBottom: 4 }}>
+      <AppText
+        variant="title"
+        style={{ textAlign: "center", marginTop: 12, marginBottom: 4 }}
+      >
         Mobile Business Toolkit
       </AppText>
 
@@ -15,21 +19,15 @@ export default function AppHome() {
         title="Calculators"
         subtitle="Quick tools for payroll, staffing, and operations."
       >
-        <Link href="/calculators/payroll" asChild>
-          <Button title="Payroll Calculator" variant="primary" />
-        </Link>
+        <AppButton title="Payroll Calculator" variant="primary" onPress={() => router.push("/calculators/payroll")} />
 
         <View style={{ height: 12 }} />
 
-	<Link href="/calculators/profit-per-labor-hour" asChild>
-          <Button title="Profit per Labor Hour" variant="primary" />
-        </Link>
+        <AppButton title="Profit per Labor Hour" variant="primary" onPress={() => router.push("/calculators/profit-per-labor-hour")} />
 
         <View style={{ height: 12 }} />
 
-        <Link href="/calculators/revenue-hours" asChild>
-          <Button title="Revenue → Hours Estimator" variant="primary" />
-        </Link>
+        <AppButton title="Revenue → Hours Estimator" variant="primary" onPress={() => router.push("/calculators/revenue-hours")} />
       </Card>
     </Screen>
   );
