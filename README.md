@@ -1,3 +1,4 @@
+[![CI](https://github.com/<YOUR_USERNAME>/mobile-business-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/<YOUR_USERNAME>/mobile-business-toolkit/actions/workflows/ci.yml)
 # 📱 Mobile Business Toolkit
 
 A production-minded React Native / Expo application for operational decision-making, staffing, and business analytics.
@@ -222,6 +223,7 @@ Planned enhancements include:
 ## 🙏 Credits
 
 Maintainer: Robert
+
 Contact: **robert@solartreehouse.org**
 
 ---
