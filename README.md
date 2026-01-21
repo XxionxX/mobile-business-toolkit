@@ -111,7 +111,7 @@ Business logic is isolated, testable, and reusable across screens.
     ├── scripts/
     ├── package.json
     ├── tsconfig.json
-    └── README.m
+    └── README.md
 
 Each calculator is **self-contained**, making it easy to add new operational tools without refactoring existing ones.
 
@@ -166,7 +166,7 @@ Each calculator is **self-contained**, making it easy to add new operational too
     npm install
     npx expo start
 
-Preview using the **Expo Go** an emulator.
+Preview using the **Expo Go** or an emulator.
 
 ---
 
@@ -204,6 +204,7 @@ Preview using the **Expo Go** an emulator.
 Planned enhancements include:
 
 **Business calculators and analytics:**
+
 - Staffing optimization
 - Overtime risk assessment
 - KPI tracking over time
@@ -212,6 +213,7 @@ Planned enhancements include:
 - Multi-location rollups
 
 **Framework enhancements:**
+
 - Shared calculator templates
 - Expanded validation utilities
 - Data export options
