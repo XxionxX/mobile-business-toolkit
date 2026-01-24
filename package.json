@@ -1,7 +1,9 @@
 {
   "name": "mobile-business-toolkit",
   "private": true,
+  "packageManager": "pnpm@9.0.0",
   "scripts": {
+    "preinstall": "node scripts/preinstall.js",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "jest",
